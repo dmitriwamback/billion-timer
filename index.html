@@ -109,15 +109,20 @@
     function tick() {
         const now = Math.floor(Date.now() / 1000);
         const elapsed = now - START_TIME;
-
-        document.getElementById("info").textContent =
-            elapsed.toLocaleString() + " s";
-
-        const pct = Math.min((elapsed / GOAL) * 100, 100);
-        document.getElementById("progress-bar").style.width = pct + "%";
-
-        document.getElementById("progress-text").textContent =
-            pct.toFixed(6) + "% complete";
+        
+        if (elapsed < 0) {
+            document.getElementById("info").textContent =
+                "Starts in " + Math.abs(elapsed).toLocaleString() + " s";
+            document.getElementById("progress-text").textContent = "0% complete";
+        } 
+        else {
+            document.getElementById("info").textContent =
+                elapsed.toLocaleString() + " s";
+            const pct = Math.min((elapsed / GOAL) * 100, 100);
+            document.getElementById("progress-bar").style.width = pct + "%";
+            document.getElementById("progress-text").textContent =
+                pct.toFixed(6) + "% complete";
+        }
     }
 
     tick();
