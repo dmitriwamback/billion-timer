@@ -9,7 +9,6 @@
             <div id="title">1 Billion Second Counter</div>
 
             <div id="info">0 s</div>
-
             <div id="progress-wrapper">
                 <div id="progress-bar"></div>
             </div>
@@ -19,6 +18,38 @@
                 <div>Start Date: <span id="start-date"></span></div>
                 <div>End Date: <span id="end-date"></span></div>
                 <a id="source-code" href="https://www.github.com/dmitriwamback/billion-timer">Source code</a>
+            </div>
+
+            <div id="small-timers">
+                <div class="small-timer" data-goal="1000000">
+                    <div class="small-title">1 Million Seconds</div>
+                    <div class="small-info">0 s</div>
+                    <div class="small-progress-wrapper">
+                        <div class="small-progress-bar"></div>
+                    </div>
+                    <div class="small-progress-text">0.000000% complete</div>
+                    <div class="small-date">Target Date: <span class="small-target-date"></span></div>
+                </div>
+
+                <div class="small-timer" data-goal="10000000">
+                    <div class="small-title">10 Million Seconds</div>
+                    <div class="small-info">0 s</div>
+                    <div class="small-progress-wrapper">
+                        <div class="small-progress-bar"></div>
+                    </div>
+                    <div class="small-progress-text">0.000000% complete</div>
+                    <div class="small-date">Target Date: <span class="small-target-date"></span></div>
+                </div>
+
+                <div class="small-timer" data-goal="100000000">
+                    <div class="small-title">100 Million Seconds</div>
+                    <div class="small-info">0 s</div>
+                    <div class="small-progress-wrapper">
+                        <div class="small-progress-bar"></div>
+                    </div>
+                    <div class="small-progress-text">0.000000% complete</div>
+                    <div class="small-date">Target Date: <span class="small-target-date"></span></div>
+                </div>
             </div>
         </div>
     </div>
@@ -36,25 +67,22 @@
         opacity: 0.85;
         display: inline-block;
         width: 100vw;
-        height: 100vh;
+        min-height: 100vh;
+        padding-bottom: 50px;
     }
+
     #title {
-        margin: auto;
-        width: calc(100% - 200px);
         text-align: center;
         margin-top: 120px;
         font-weight: 600;
         font-size: 3em;
     }
     #info {
-        margin: auto;
-        width: calc(100% - 200px);
         text-align: center;
-        margin-top: 60px;
-        font-weight: 600;
         font-size: 8em;
+        font-weight: 600;
+        margin-top: 60px;
     }
-
     #progress-wrapper {
         width: 60%;
         height: 30px;
@@ -77,10 +105,57 @@
         margin-bottom: 40px;
     }
 
+    #small-timers {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 40px;
+        flex-wrap: wrap;
+    }
+    .small-timer {
+        width: 400px;
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 15px;
+    }
+    .small-title {
+        font-size: 1.3em;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    .small-info {
+        font-weight: 600;
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+    .small-progress-wrapper {
+        width: 100%;
+        height: 15px;
+        background: #1a1a1f;
+        border-radius: 20px;
+        margin-bottom: 5px;
+        overflow: hidden;
+    }
+    .small-progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #00ffdd, #00aaff);
+        border-radius: 20px;
+        transition: width 0.4s ease-out;
+    }
+    .small-progress-text {
+        font-size: 0.9em;
+        opacity: 0.8;
+        margin-bottom: 5px;
+    }
+    .small-date {
+        font-size: 0.9em;
+        opacity: 0.7;
+    }
+
     #details {
         margin-top: 60px;
         text-align: center;
-        font-size: 1.5em;
+        font-size: 1.2em;
         line-height: 1.8em;
     }
     #source-code {
@@ -96,7 +171,6 @@
 <script>
     const END_TIME = Math.floor(new Date("2057-08-06T19:14:15Z").getTime() / 1000);
     const START_TIME = END_TIME - 1_000_000_000;
-    const GOAL = 1_000_000_000;
 
     function formatDate(ts) {
         const d = new Date(ts * 1000);
@@ -115,27 +189,53 @@
     document.getElementById("start-date").textContent = formatDate(START_TIME);
     document.getElementById("end-date").textContent = formatDate(END_TIME);
 
+    const smallTimers = document.querySelectorAll('.small-timer');
+    smallTimers.forEach(timer => {
+        const goal = parseInt(timer.getAttribute('data-goal'));
+        const targetDate = START_TIME + goal;
+        timer.querySelector('.small-target-date').textContent = formatDate(targetDate);
+    });
+
     function tick() {
         const now = Math.floor(Date.now() / 1000);
         const elapsed = now - START_TIME;
-        
+
+        const info = document.getElementById("info");
+        const bar = document.getElementById("progress-bar");
+        const text = document.getElementById("progress-text");
+
         if (elapsed < 0) {
-            document.getElementById("info").textContent =
-                "Starts in " + Math.abs(elapsed).toLocaleString() + " s";
-            document.getElementById("progress-text").textContent = "0% complete";
-        } 
-        else {
-            document.getElementById("info").textContent =
-                elapsed.toLocaleString() + " s";
-            const pct = Math.min((elapsed / GOAL) * 100, 100);
-            document.getElementById("progress-bar").style.width = pct + "%";
-            document.getElementById("progress-text").textContent =
-                pct.toFixed(6) + "% complete";
+            info.textContent = "Starts in " + Math.abs(elapsed).toLocaleString() + " s";
+            text.textContent = "0% complete";
+            bar.style.width = "0%";
+        } else {
+            info.textContent = elapsed.toLocaleString() + " s";
+            const pct = Math.min((elapsed / 1_000_000_000) * 100, 100);
+            bar.style.width = pct + "%";
+            text.textContent = pct.toFixed(6) + "% complete";
         }
+
+        smallTimers.forEach(timer => {
+            const goal = parseInt(timer.getAttribute('data-goal'));
+            const info = timer.querySelector('.small-info');
+            const bar = timer.querySelector('.small-progress-bar');
+            const text = timer.querySelector('.small-progress-text');
+
+            if (elapsed < 0) {
+                info.textContent = "Starts in " + Math.abs(elapsed).toLocaleString() + " s";
+                text.textContent = "0% complete";
+                bar.style.width = "0%";
+            } else {
+                const seconds = Math.min(elapsed, goal);
+                info.textContent = seconds.toLocaleString() + " s";
+                const pct = Math.min((seconds / goal) * 100, 100);
+                bar.style.width = pct + "%";
+                text.textContent = pct.toFixed(6) + "% complete";
+            }
+        });
     }
 
     tick();
     setInterval(tick, 1000);
 </script>
-
 </html>
